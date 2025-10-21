@@ -1,6 +1,7 @@
+using System.ComponentModel.DataAnnotations;
+
 namespace ApiProject.Dtos
 {
-    // Output DTO
     public class MemberDto
     {
         public int Id { get; set; }
@@ -9,19 +10,33 @@ namespace ApiProject.Dtos
         public string? PhoneNumber { get; set; }
     }
 
-    // Input DTO for creating a Member
     public class CreateMemberDto
     {
+        [Required]
+        [MaxLength(100)]
         public string Name { get; set; } = null!;
+
+        [Required]
+        [EmailAddress]
         public string Email { get; set; } = null!;
+
+        [Phone]
+        [MaxLength(20)]
         public string? PhoneNumber { get; set; }
     }
 
-    // Input DTO for updating a Member
     public class UpdateMemberDto
     {
+        [Required]
+        [MaxLength(100)]
         public string Name { get; set; } = null!;
+
+        [Required]
+        [EmailAddress]
         public string Email { get; set; } = null!;
+
+        [Phone]
+        [MaxLength(20)]
         public string? PhoneNumber { get; set; }
     }
 }

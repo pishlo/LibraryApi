@@ -1,8 +1,8 @@
 using System;
+using System.ComponentModel.DataAnnotations;
 
 namespace ApiProject.Dtos
 {
-    // Output DTO
     public class BorrowRecordDto
     {
         public int Id { get; set; }
@@ -14,10 +14,12 @@ namespace ApiProject.Dtos
         public DateTime? ReturnDate { get; set; }
     }
 
-    // Input DTO for creating a BorrowRecord
     public class CreateBorrowRecordDto
     {
+        [Required]
         public int BookId { get; set; }
+
+        [Required]
         public int MemberId { get; set; }
     }
 }

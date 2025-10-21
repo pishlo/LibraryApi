@@ -1,6 +1,7 @@
+using System.ComponentModel.DataAnnotations;
+
 namespace ApiProject.Dtos
 {
-    // Output DTO for Book (includes Author info)
     public class BookDto
     {
         public int Id { get; set; }
@@ -11,21 +12,35 @@ namespace ApiProject.Dtos
         public string? AuthorName { get; set; }
     }
 
-    // Input DTO for creating a Book
     public class CreateBookDto
     {
-        public string? Title { get; set; }
+        [Required]
+        [StringLength(100)]
+        public string Title { get; set; } = null!;
+
+        [StringLength(30)]
         public string? Genre { get; set; }
+
+        [Range(1000, 9999)]
         public int Year { get; set; }
+
+        [Required]
         public int AuthorId { get; set; }
     }
 
-    // Input DTO for updating a Book
     public class UpdateBookDto
     {
-        public string? Title { get; set; }
+        [Required]
+        [StringLength(100)]
+        public string Title { get; set; } = null!;
+
+        [StringLength(30)]
         public string? Genre { get; set; }
+
+        [Range(1000, 9999)]
         public int Year { get; set; }
+
+        [Required]
         public int AuthorId { get; set; }
     }
 }

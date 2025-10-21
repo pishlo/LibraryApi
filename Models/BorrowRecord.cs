@@ -20,7 +20,6 @@ namespace ApiProject.Models
 
         public DateTime? ReturnDate { get; set; }
 
-        // Navigation properties
         [ForeignKey(nameof(BookId))]
         public Book? Book { get; set; }
 

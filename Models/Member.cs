@@ -1,6 +1,6 @@
+using System.Collections.Generic;
 using System.ComponentModel.DataAnnotations;
 using System.Text.Json.Serialization;
-using System.Collections.Generic;
 
 namespace ApiProject.Models
 {
@@ -10,17 +10,17 @@ namespace ApiProject.Models
         public int Id { get; set; }
 
         [Required]
-        [MaxLength(100)]
-        public string Name { get; set; }
+        [MaxLength(100, ErrorMessage = "Name cannot exceed 100 characters.")]
+        public string Name { get; set; } = null!;
 
         [Required]
-        [EmailAddress]
-        public string Email { get; set; }
+        [EmailAddress(ErrorMessage = "Invalid email format.")]
+        public string Email { get; set; } = null!;
 
-        [Phone]
+        [Phone(ErrorMessage = "Invalid phone number format.")]
+        [MaxLength(20, ErrorMessage = "Phone number cannot exceed 20 characters.")]
         public string? PhoneNumber { get; set; }
 
-        // Navigation property — one member can have many borrow records
         [JsonIgnore]
         public ICollection<BorrowRecord> BorrowRecords { get; set; } = new List<BorrowRecord>();
     }

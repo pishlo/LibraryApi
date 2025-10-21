@@ -1,6 +1,7 @@
+using System.ComponentModel.DataAnnotations;
+
 namespace ApiProject.Dtos
 {
-    // Output DTO (for GET requests)
     public class AuthorDto
     {
         public int Id { get; set; }
@@ -8,17 +9,23 @@ namespace ApiProject.Dtos
         public string? Country { get; set; }
     }
 
-    // Input DTO for creating a new author
     public class CreateAuthorDto
     {
-        public string? Name { get; set; }
+        [Required]
+        [StringLength(50)]
+        public string Name { get; set; } = null!;
+
+        [StringLength(50)]
         public string? Country { get; set; }
     }
 
-    // Input DTO for updating an author
     public class UpdateAuthorDto
     {
-        public string? Name { get; set; }
+        [Required]
+        [StringLength(50)]
+        public string Name { get; set; } = null!;
+
+        [StringLength(50)]
         public string? Country { get; set; }
     }
 }
