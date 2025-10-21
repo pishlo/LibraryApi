@@ -1,5 +1,5 @@
 using Microsoft.AspNetCore.Mvc;
-using ApiProject.Models;
+using ApiProject.Dtos;
 using ApiProject.Services;
 
 namespace ApiProject.Controllers
@@ -17,7 +17,7 @@ namespace ApiProject.Controllers
 
         // GET: api/members
         [HttpGet]
-        public async Task<ActionResult<IEnumerable<Member>>> GetMembers()
+        public async Task<ActionResult<IEnumerable<MemberDto>>> GetMembers()
         {
             var members = await _memberService.GetAllMembersAsync();
             return Ok(members);
@@ -25,7 +25,7 @@ namespace ApiProject.Controllers
 
         // GET: api/members/{id}
         [HttpGet("{id}")]
-        public async Task<ActionResult<Member>> GetMember(int id)
+        public async Task<ActionResult<MemberDto>> GetMember(int id)
         {
             var member = await _memberService.GetMemberByIdAsync(id);
             if (member == null)
@@ -36,20 +36,17 @@ namespace ApiProject.Controllers
 
         // POST: api/members
         [HttpPost]
-        public async Task<ActionResult<Member>> CreateMember(Member member)
+        public async Task<ActionResult<MemberDto>> CreateMember(CreateMemberDto dto)
         {
-            var createdMember = await _memberService.CreateMemberAsync(member);
+            var createdMember = await _memberService.CreateMemberAsync(dto);
             return CreatedAtAction(nameof(GetMember), new { id = createdMember.Id }, createdMember);
         }
 
         // PUT: api/members/{id}
         [HttpPut("{id}")]
-        public async Task<IActionResult> UpdateMember(int id, Member member)
+        public async Task<IActionResult> UpdateMember(int id, UpdateMemberDto dto)
         {
-            if (id != member.Id)
-                return BadRequest("Id mismatch.");
-
-            var updated = await _memberService.UpdateMemberAsync(member);
+            var updated = await _memberService.UpdateMemberAsync(id, dto);
             if (!updated)
                 return NotFound();
 

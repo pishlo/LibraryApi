@@ -1,5 +1,5 @@
 using Microsoft.AspNetCore.Mvc;
-using ApiProject.Models;
+using ApiProject.Dtos;
 using ApiProject.Services;
 
 namespace ApiProject.Controllers
@@ -17,7 +17,7 @@ namespace ApiProject.Controllers
 
         // GET: api/borrowrecords
         [HttpGet]
-        public async Task<ActionResult<IEnumerable<BorrowRecord>>> GetBorrowRecords()
+        public async Task<ActionResult<IEnumerable<BorrowRecordDto>>> GetBorrowRecords()
         {
             var records = await _borrowService.GetAllBorrowRecordsAsync();
             return Ok(records);
@@ -25,21 +25,19 @@ namespace ApiProject.Controllers
 
         // GET: api/borrowrecords/{id}
         [HttpGet("{id}")]
-        public async Task<ActionResult<BorrowRecord>> GetBorrowRecord(int id)
+        public async Task<ActionResult<BorrowRecordDto>> GetBorrowRecord(int id)
         {
             var record = await _borrowService.GetBorrowRecordByIdAsync(id);
-            if (record == null)
-                return NotFound();
+            if (record == null) return NotFound();
 
             return Ok(record);
         }
 
         // POST: api/borrowrecords
         [HttpPost]
-        public async Task<IActionResult> CreateBorrowRecord(BorrowRecord record)
+        public async Task<IActionResult> CreateBorrowRecord(CreateBorrowRecordDto dto)
         {
-            var result = await _borrowService.CreateBorrowRecordAsync(record);
-
+            var result = await _borrowService.CreateBorrowRecordAsync(dto);
             if (result == "Book not found." || result == "Member not found.")
                 return BadRequest(result);
 
@@ -51,8 +49,7 @@ namespace ApiProject.Controllers
         public async Task<IActionResult> ReturnBook(int id)
         {
             var success = await _borrowService.ReturnBookAsync(id);
-            if (!success)
-                return NotFound("Borrow record not found.");
+            if (!success) return NotFound("Borrow record not found.");
 
             return Ok("Book returned successfully.");
         }
@@ -62,8 +59,7 @@ namespace ApiProject.Controllers
         public async Task<IActionResult> DeleteBorrowRecord(int id)
         {
             var deleted = await _borrowService.DeleteBorrowRecordAsync(id);
-            if (!deleted)
-                return NotFound();
+            if (!deleted) return NotFound();
 
             return NoContent();
         }

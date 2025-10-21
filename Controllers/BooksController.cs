@@ -1,5 +1,5 @@
 using Microsoft.AspNetCore.Mvc;
-using ApiProject.Models;
+using ApiProject.Dtos;
 using ApiProject.Services;
 
 namespace ApiProject.Controllers
@@ -16,14 +16,14 @@ namespace ApiProject.Controllers
         }
 
         [HttpGet]
-        public async Task<ActionResult<IEnumerable<Book>>> GetBooks()
+        public async Task<ActionResult<IEnumerable<BookDto>>> GetBooks()
         {
             var books = await _bookService.GetAllBooksAsync();
             return Ok(books);
         }
 
         [HttpGet("{id}")]
-        public async Task<ActionResult<Book>> GetBook(int id)
+        public async Task<ActionResult<BookDto>> GetBook(int id)
         {
             var book = await _bookService.GetBookByIdAsync(id);
             if (book == null) return NotFound();
@@ -31,11 +31,11 @@ namespace ApiProject.Controllers
         }
 
         [HttpPost]
-        public async Task<ActionResult<Book>> CreateBook(Book book)
+        public async Task<ActionResult<BookDto>> CreateBook(CreateBookDto dto)
         {
             try
             {
-                var createdBook = await _bookService.CreateBookAsync(book);
+                var createdBook = await _bookService.CreateBookAsync(dto);
                 return CreatedAtAction(nameof(GetBook), new { id = createdBook.Id }, createdBook);
             }
             catch (ArgumentException ex)
@@ -45,20 +45,20 @@ namespace ApiProject.Controllers
         }
 
         [HttpPut("{id}")]
-        public async Task<IActionResult> UpdateBook(int id, Book book)
+        public async Task<IActionResult> UpdateBook(int id, UpdateBookDto dto)
         {
             try
             {
-                await _bookService.UpdateBookAsync(id, book);
+                await _bookService.UpdateBookAsync(id, dto);
                 return NoContent();
-            }
-            catch (ArgumentException ex)
-            {
-                return BadRequest(ex.Message);
             }
             catch (KeyNotFoundException)
             {
                 return NotFound();
+            }
+            catch (ArgumentException ex)
+            {
+                return BadRequest(ex.Message);
             }
         }
 

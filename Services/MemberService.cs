@@ -1,6 +1,7 @@
+using Microsoft.EntityFrameworkCore;
 using ApiProject.Data;
 using ApiProject.Models;
-using Microsoft.EntityFrameworkCore;
+using ApiProject.Dtos;
 
 namespace ApiProject.Services
 {
@@ -13,35 +14,51 @@ namespace ApiProject.Services
             _context = context;
         }
 
-        public async Task<IEnumerable<Member>> GetAllMembersAsync()
+        // Map Member → MemberDto
+        private static MemberDto MapToDto(Member member) => new MemberDto
         {
-            return await _context.Members
-                .Include(m => m.BorrowRecords)
-                .ToListAsync();
+            Id = member.Id,
+            Name = member.Name,
+            Email = member.Email,
+            PhoneNumber = member.PhoneNumber
+        };
+
+        public async Task<List<MemberDto>> GetAllMembersAsync()
+        {
+            var members = await _context.Members.ToListAsync();
+            return members.Select(MapToDto).ToList();
         }
 
-        public async Task<Member?> GetMemberByIdAsync(int id)
+        public async Task<MemberDto?> GetMemberByIdAsync(int id)
         {
-            return await _context.Members
-                .Include(m => m.BorrowRecords)
-                .FirstOrDefaultAsync(m => m.Id == id);
+            var member = await _context.Members.FindAsync(id);
+            return member == null ? null : MapToDto(member);
         }
 
-        public async Task<Member> CreateMemberAsync(Member member)
+        public async Task<MemberDto> CreateMemberAsync(CreateMemberDto dto)
         {
+            var member = new Member
+            {
+                Name = dto.Name,
+                Email = dto.Email,
+                PhoneNumber = dto.PhoneNumber
+            };
+
             _context.Members.Add(member);
             await _context.SaveChangesAsync();
-            return member;
+
+            return MapToDto(member);
         }
 
-        public async Task<bool> UpdateMemberAsync(Member member)
+        public async Task<bool> UpdateMemberAsync(int id, UpdateMemberDto dto)
         {
-            var existing = await _context.Members.FindAsync(member.Id);
+            var existing = await _context.Members.FindAsync(id);
             if (existing == null)
                 return false;
 
-            existing.Name = member.Name;
-            existing.Email = member.Email;
+            existing.Name = dto.Name;
+            existing.Email = dto.Email;
+            existing.PhoneNumber = dto.PhoneNumber;
 
             await _context.SaveChangesAsync();
             return true;

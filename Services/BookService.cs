@@ -1,6 +1,7 @@
 using Microsoft.EntityFrameworkCore;
 using ApiProject.Data;
 using ApiProject.Models;
+using ApiProject.Dtos;
 
 namespace ApiProject.Services
 {
@@ -13,56 +14,74 @@ namespace ApiProject.Services
             _context = context;
         }
 
-        // Get all books (including authors)
-        public async Task<List<Book>> GetAllBooksAsync()
+        // Helper method to map Book → BookDto
+        private static BookDto MapToDto(Book book) => new BookDto
         {
-            return await _context.Books
-                                 .Include(b => b.Author)
-                                 .ToListAsync();
+            Id = book.Id,
+            Title = book.Title,
+            Genre = book.Genre,
+            Year = book.Year,
+            AuthorId = book.AuthorId,
+            AuthorName = book.Author?.Name
+        };
+
+        // Get all books (including authors)
+        public async Task<List<BookDto>> GetAllBooksAsync()
+        {
+            var books = await _context.Books.Include(b => b.Author).ToListAsync();
+            return books.Select(MapToDto).ToList();
         }
 
         // Get book by id
-        public async Task<Book?> GetBookByIdAsync(int id)
+        public async Task<BookDto?> GetBookByIdAsync(int id)
         {
-            return await _context.Books
-                                 .Include(b => b.Author)
-                                 .FirstOrDefaultAsync(b => b.Id == id);
+            var book = await _context.Books.Include(b => b.Author)
+                                           .FirstOrDefaultAsync(b => b.Id == id);
+            return book == null ? null : MapToDto(book);
         }
 
         // Create book
-        public async Task<Book> CreateBookAsync(Book book)
+        public async Task<BookDto> CreateBookAsync(CreateBookDto dto)
         {
-            if (string.IsNullOrWhiteSpace(book.Title))
+            if (string.IsNullOrWhiteSpace(dto.Title))
                 throw new ArgumentException("Book Title is required.");
 
-            var authorExists = await _context.Authors.AnyAsync(a => a.Id == book.AuthorId);
+            var authorExists = await _context.Authors.AnyAsync(a => a.Id == dto.AuthorId);
             if (!authorExists)
                 throw new ArgumentException("AuthorId does not exist.");
+
+            var book = new Book
+            {
+                Title = dto.Title,
+                Genre = dto.Genre,
+                Year = dto.Year,
+                AuthorId = dto.AuthorId
+            };
 
             _context.Books.Add(book);
             await _context.SaveChangesAsync();
 
-            return book;
+            // Load Author for DTO mapping
+            await _context.Entry(book).Reference(b => b.Author).LoadAsync();
+
+            return MapToDto(book);
         }
 
         // Update book
-        public async Task UpdateBookAsync(int id, Book updatedBook)
+        public async Task UpdateBookAsync(int id, UpdateBookDto dto)
         {
-            if (id != updatedBook.Id)
-                throw new ArgumentException("Id mismatch.");
-
             var existingBook = await _context.Books.FindAsync(id);
             if (existingBook == null)
                 throw new KeyNotFoundException("Book not found.");
 
-            var authorExists = await _context.Authors.AnyAsync(a => a.Id == updatedBook.AuthorId);
+            var authorExists = await _context.Authors.AnyAsync(a => a.Id == dto.AuthorId);
             if (!authorExists)
                 throw new ArgumentException("AuthorId does not exist.");
 
-            existingBook.Title = updatedBook.Title;
-            existingBook.Genre = updatedBook.Genre;
-            existingBook.Year = updatedBook.Year;
-            existingBook.AuthorId = updatedBook.AuthorId;
+            existingBook.Title = dto.Title;
+            existingBook.Genre = dto.Genre;
+            existingBook.Year = dto.Year;
+            existingBook.AuthorId = dto.AuthorId;
 
             await _context.SaveChangesAsync();
         }
