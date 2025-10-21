@@ -17,8 +17,7 @@ namespace ApiProject.Models
         [EmailAddress(ErrorMessage = "Invalid email format.")]
         public string Email { get; set; } = null!;
 
-        [Phone(ErrorMessage = "Invalid phone number format.")]
-        [MaxLength(20, ErrorMessage = "Phone number cannot exceed 20 characters.")]
+        [RegularExpression(@"^\d{10}$", ErrorMessage = "Phone number must be exactly 10 digits.")]
         public string? PhoneNumber { get; set; }
 
         [JsonIgnore]

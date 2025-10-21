@@ -13,30 +13,28 @@ namespace ApiProject.Dtos
     public class CreateMemberDto
     {
         [Required]
-        [MaxLength(100)]
+        [MaxLength(100, ErrorMessage = "Name cannot exceed 100 characters.")]
         public string Name { get; set; } = null!;
 
         [Required]
-        [EmailAddress]
+        [EmailAddress(ErrorMessage = "Invalid email format.")]
         public string Email { get; set; } = null!;
 
-        [Phone]
-        [MaxLength(20)]
+        [RegularExpression(@"^\d{10}$", ErrorMessage = "Phone number must be exactly 10 digits.")]
         public string? PhoneNumber { get; set; }
     }
 
     public class UpdateMemberDto
     {
         [Required]
-        [MaxLength(100)]
+        [MaxLength(100, ErrorMessage = "Name cannot exceed 100 characters.")]
         public string Name { get; set; } = null!;
 
         [Required]
-        [EmailAddress]
+        [EmailAddress(ErrorMessage = "Invalid email format.")]
         public string Email { get; set; } = null!;
 
-        [Phone]
-        [MaxLength(20)]
+        [RegularExpression(@"^\d{10}$", ErrorMessage = "Phone number must be exactly 10 digits.")]
         public string? PhoneNumber { get; set; }
     }
 }
