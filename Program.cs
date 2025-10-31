@@ -7,9 +7,13 @@ using ApiProject.Middleware;
 
 var builder = WebApplication.CreateBuilder(args);
 
+// -----------------------
 // Connection string
-var connectionString = builder.Configuration.GetConnectionString("DefaultConnection")
-                       ?? throw new InvalidOperationException("Connection string 'DefaultConnection' not found.");
+// -----------------------
+// Try environment variable first (from Render)
+var connectionString = Environment.GetEnvironmentVariable("NEON_DB_CONNECTION")
+                       ?? builder.Configuration.GetConnectionString("DefaultConnection")
+                       ?? throw new InvalidOperationException("No database connection string configured.");
 
 // Database
 builder.Services.AddDbContext<Library_AppContext>(options =>
@@ -46,19 +50,28 @@ builder.Services.AddScoped<BorrowRecordService>();
 builder.Services.AddScoped<AuthorService>();
 builder.Services.AddScoped<BookService>();
 
+// -----------------------
+// CORS
+// Allow local dev + deployed frontend
+// -----------------------
 builder.Services.AddCors(options =>
 {
     options.AddPolicy("AllowFrontend", policy =>
     {
-        policy.WithOrigins("http://localhost:5173") // React dev server
-              .AllowAnyHeader()
-              .AllowAnyMethod();
+        policy.WithOrigins(
+                "http://localhost:5173",                  // local dev
+                "https://YOUR_NETLIFY_FRONTEND_URL"      // replace with your Netlify URL
+            )
+            .AllowAnyHeader()
+            .AllowAnyMethod();
     });
 });
 
 var app = builder.Build();
 
+// -----------------------
 // Middleware
+// -----------------------
 if (app.Environment.IsDevelopment())
 {
     app.UseSwagger();
@@ -74,10 +87,7 @@ app.UseHttpsRedirection();
 // Global exception handling should be before authorization
 app.UseMiddleware<ExceptionHandlingMiddleware>();
 
-// -----------------------
 // Enable CORS
-// Must be BEFORE UseAuthorization
-// -----------------------
 app.UseCors("AllowFrontend");
 
 app.UseAuthorization();
