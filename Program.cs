@@ -8,9 +8,9 @@ using ApiProject.Middleware;
 var builder = WebApplication.CreateBuilder(args);
 
 // -----------------------
-// Connection string
+// Database connection
 // -----------------------
-// Try environment variable first (from Render)
+// Use Render environment variable first, then fallback to appsettings.json
 var connectionString = Environment.GetEnvironmentVariable("NEON_DB_CONNECTION")
                        ?? builder.Configuration.GetConnectionString("DefaultConnection")
                        ?? throw new InvalidOperationException("No database connection string configured.");
@@ -52,7 +52,7 @@ builder.Services.AddScoped<BookService>();
 
 // -----------------------
 // CORS
-// Allow local dev + deployed frontend
+// Allow local dev + deployed Netlify frontend
 // -----------------------
 builder.Services.AddCors(options =>
 {
@@ -60,7 +60,7 @@ builder.Services.AddCors(options =>
     {
         policy.WithOrigins(
                 "http://localhost:5173",                  // local dev
-                "https://YOUR_NETLIFY_FRONTEND_URL"      // replace with your Netlify URL
+                "https://libraryapifrontend.netlify.app" // deployed frontend
             )
             .AllowAnyHeader()
             .AllowAnyMethod();
