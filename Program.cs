@@ -46,6 +46,16 @@ builder.Services.AddScoped<BorrowRecordService>();
 builder.Services.AddScoped<AuthorService>();
 builder.Services.AddScoped<BookService>();
 
+builder.Services.AddCors(options =>
+{
+    options.AddPolicy("AllowFrontend", policy =>
+    {
+        policy.WithOrigins("http://localhost:5173") // React dev server
+              .AllowAnyHeader()
+              .AllowAnyMethod();
+    });
+});
+
 var app = builder.Build();
 
 // Middleware
@@ -63,6 +73,12 @@ app.UseHttpsRedirection();
 
 // Global exception handling should be before authorization
 app.UseMiddleware<ExceptionHandlingMiddleware>();
+
+// -----------------------
+// Enable CORS
+// Must be BEFORE UseAuthorization
+// -----------------------
+app.UseCors("AllowFrontend");
 
 app.UseAuthorization();
 

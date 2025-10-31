@@ -23,6 +23,12 @@ namespace ApiProject.Data
         {
             base.OnModelCreating(builder);
 
+            // --- Map entities to lowercase tables ---
+            builder.Entity<Author>().ToTable("authors");
+            builder.Entity<Book>().ToTable("books");
+            builder.Entity<Member>().ToTable("members");
+            builder.Entity<BorrowRecord>().ToTable("borrowrecords");
+
             // --- Author Config ---
             builder.Entity<Author>()
                 .Property(a => a.Name)
